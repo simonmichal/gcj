@@ -27,14 +27,14 @@ struct bytes_t
     // e.g. for SIZE = 8 it is (7)decimal =
     // (111)binary so it equals to 3
     int value;
-    // set the value in constructor
-    bytes_t() : value(bits_set(SIZE - 1)) {}
+    // set the value in constructor (make it compile-time accessible)
+    constexpr bytes_t() : value(bits_set(SIZE - 1)) {}
     // subscript operator
-    int operator[](size_t index)
+    int operator[](size_t index) const
     {
     	// reinterpret the data structure as an array of ints
     	// (dirty trick but it works ;)
-        return reinterpret_cast<int*>(this)[index];
+        return reinterpret_cast<int const *>(this)[index];
     }
 };
 
@@ -43,13 +43,13 @@ template<>
 struct bytes_t<1> 			// it is important that this one ends at 1
 {                 			// and at 0 because it has to contain a value (int)
     int value;    			// otherwise we would have an empty struct
-    bytes_t() : value(0) {} // whose size is greater than 0 according to c++ standard,
+    constexpr bytes_t() : value(0) {} // whose size is greater than 0 according to c++ standard,
 };							// and this in turn would break the subscript operator
 
 // counts the number of bits that are set in a unsigned long long
 unsigned count_set_bits(unsigned long long l)
 {
-    static bytes_t<256> ones;
+    static constexpr bytes_t<256> ones;
     static auto size = sizeof(unsigned long long);
     unsigned ret = 0;
     auto bytes = (unsigned char*)&l;
